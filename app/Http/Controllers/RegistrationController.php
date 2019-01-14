@@ -2,57 +2,75 @@
 namespace App\Http\Controllers;
  
 use Illuminate\Http\Request;
+use App\User;
+use App\Validator;
  
 class RegistrationController extends Controller
 {
-	public function store()
+    const ID_ROL = 2;
+       
+    public function store()
     {
         $name = $_POST['user'];
         $email = $_POST['email'];
         $password = $_POST['password'];
-
-        //Si el campo no está vacío
-        if (!ctype_graph($name)) {
-            return parent::error(400,"The user name must be only one word"); 
+        
+        //Comprueba que no haya campos vacíos
+        if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
+        {
+            return parent::error(400, "The text fields cannot be empty");
         }
-  
-        $user = User::where('email', $email)->first();
-
-        if($user != null){
-            if ($email == $user->email) {
-                return parent::error(400,"The email already exists"); 
-            }
+        
+        if (self::isEmailInUse($email)) {
+            return parent::error(400,"The email already exists"); 
         }
-
-        //minimo de caracteres en la contraseña
-        if (strlen($password) < 8) {
+        
+        //mínimo de caracteres en la contraseña
+        if(!Validator::reachesMinLength($password, 8)) {
             return parent::error(400,"Invalid password. It must be at least 8 characters long."); 
         }
 
-        $rol_id = self::ID_ROL;
+        if (Validator::exceedsMaxLength($name, 50)) {
+            return parent::error(400, 'Name too long');
+        }
 
         $user = new User;
-
         $user->name = $name;
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user->password = $encondedPassword;
-        $user->rol_id = $rol_id;
+        $user->rol_id = self::ID_ROL;
 
-        $dataToken =[
-            'email' => $user->email, 
-            'password' => $user->password,
-            'random' => time()
-        ];
+        $token = parent::generateToken($email, $password);
         
         $user->save();
-        return parent::success("User created", parent::returnToken($dataToken));
+        return response()->json([
+            'token' => $token
+        ]);
     }
 
     public function destroy($id)
     {
-        $user = User::find($id);
-        $user->delete();
-        var_dump("Your account has been deleted");
+        if(parent::isLoggedIn())
+        {
+            $user = parent::getUserfromToken();
+            $user->delete();
+            return parent::success('Your account has been deleted', "");  
+        } else {
+            return parent::error('Error in login', 301);
+        }
+        
+    }
+
+    private function isEmailInUse($email)
+    {
+      $users = User:where('email', $email)->get();
+      foreach ($users as &$user) 
+      {
+            if($user->email == $email)
+            {
+                return true;
+            }
+        }  
     }
 }

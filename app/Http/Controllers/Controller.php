@@ -1,54 +1,66 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use \Firebase\JWT\JWT;
+use App\User;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected const TOKEN_KEY = "fo23k4f2o34fij324f023j4f2034";
+    protected const TOKEN_KEY = 'bHH2JilgwA3YxOqwn';
 
     protected function findUser($email)
     {
         $user = User::where('email',$email)->first();       
-        return $user;
-        
+        return $user; 
     }
 
-    protected function getUserFromToken()
+    protected function getUserfromToken()
     {
-        $decodedToken = self::decodeToken();
-        $user = self::findUser($decodedToken->email);
+        $tokenDecoded = self::decodeToken();
+        $user = self::findUser($tokenDecoded->email);
         return $user;
     }
 
-    //Comprueba si el token es valido.
-    protected function checkLogin()
-    {   
-        $headers = getallheaders();
-        if(!isset($headers['Authorization']) ) { return false;}    
-        $tokenDecoded = self::decodeToken();
-        $user = self::getUserFromToken();
-        if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
-        {
-            return true;
-        }        
-        else             
-        {
-            return response ('no tienes permisos', 301);
-        }
-
+    protected function error($code, $message)
+    {
+        $json = ['message'=> $message];
+        $json = json_encode($json);
+        return response($json, $code)->header('Access-Control-Allow-Origin', '*');
     }
 
-    private static function decodeToken()
-    {  
+    protected function success($message, $data = [])
+    {
+        $json = ['message'=> $message, 'data' => $data];
+        $json = json_encode($json);
+        return response($json, 200)->withHeaders([
+            'Content-Type' => 'application/json',
+            'Access-Control-Allow-Origin' => '*',
+        ]);
+    }
+
+    protected function generateToken($email, $password)
+    {
+        $dataToken = [
+            'email' => $email,
+            'password' => $password,
+            'random' => time()
+        ];
+
+        $token = JWT::encode($dataToken, self::TOKEN_KEY);         
+
+        return $token;
+    }
+
+    protected function decodeToken() 
+    {
         $headers = getallheaders();
-        if(isset($headers['Authorization'])) 
+        if(isset($headers['Authorization']))
         {
             $token = $headers['Authorization'];
             $tokenDecoded = JWT::decode($token, self::TOKEN_KEY, array('HS256'));
@@ -56,21 +68,21 @@ class Controller extends BaseController
         }
     }
 
-    protected function response($text, $code = 400){
-    	return response()->json ([
-            'text' => $text
-        ],$code);
-    }
-
-    private function hasOnlyOneWord($name)
-    {     
-        if(ctype_graph($name)) 
+    protected function IsLoggedIn()
+    {
+        $headers = getallheaders();
+        if (!isset($headers['Authorization'])) 
         {
-            return true;
-        }
-        else 
-        {
-            return false; 
+            return false;
+        } else {
+            $user = self::getUserfromToken();
+            $tokenDecoded = self::decodeToken();
+            if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
+            {
+                return true;
+            } else {
+                return self::error(301, 'no tienes permisos');
+            }
         }
     }
 }

@@ -9,13 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-     public function password()
+
+    public function role()
     {
-        return $this->hasMany('App\Password');
+        return $this->belongsTo('App\Role');
     }
 
-    public function rol()
-    {
-        return $this->belongsTo('App\User');
+    public function locations(){
+    	return $this->hasMany('App\Location');
     }
 }
