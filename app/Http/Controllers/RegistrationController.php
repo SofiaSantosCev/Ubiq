@@ -12,7 +12,7 @@ class RegistrationController extends Controller
     //Crear nuevo usuario
     public function store()
     {
-        $name = $_POST['user'];
+        $name = $_POST['name'];
         $email = $_POST['email'];
         $password = $_POST['password'];
         
@@ -65,7 +65,7 @@ class RegistrationController extends Controller
 
     private function isEmailInUse($email)
     {
-      $users = User:where('email', $email)->get();
+      $users = User::where('email', $email)->get();
       foreach ($users as $user) 
       {
             if($user->email == $email)

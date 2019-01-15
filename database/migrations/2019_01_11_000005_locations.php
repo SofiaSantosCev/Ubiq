@@ -21,7 +21,7 @@ class Locations extends Migration
             $table->date('end_date');
             $table->double('x_coordinate');
             $table->double('y_coordinate');
-            $table->unsignedInteger('user_id');
+            $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

@@ -10,8 +10,9 @@ use Auth;
 
 class LoginController extends Controller
 {
- public function login()
-    {
+ 
+public function login()
+{
         $key = 'bHH2JilgwA3YxOqwn';
 
         $user = User::where('email', $_POST['email'])->first();
