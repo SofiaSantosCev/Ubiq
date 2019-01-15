@@ -8,7 +8,8 @@ use App\Validator;
 class RegistrationController extends Controller
 {
     const ID_ROL = 2;
-       
+    
+    //Crear nuevo usuario
     public function store()
     {
         $name = $_POST['user'];
@@ -21,17 +22,16 @@ class RegistrationController extends Controller
             return parent::error(400, "The text fields cannot be empty");
         }
         
-        if (self::isEmailInUse($email)) {
+        //Comprueba que el email no esté en uso
+        if (self::isEmailInUse($email)) 
+        {
             return parent::error(400,"The email already exists"); 
         }
         
-        //mínimo de caracteres en la contraseña
-        if(!Validator::reachesMinLength($password, 8)) {
+        //mínimo 8 caracteres en la contraseña
+        if(!Validator::reachesMinLength($password, 8))
+        {
             return parent::error(400,"Invalid password. It must be at least 8 characters long."); 
-        }
-
-        if (Validator::exceedsMaxLength($name, 50)) {
-            return parent::error(400, 'Name too long');
         }
 
         $user = new User;
@@ -49,6 +49,7 @@ class RegistrationController extends Controller
         ]);
     }
 
+    //Eliminar usuario
     public function destroy($id)
     {
         if(parent::isLoggedIn())
@@ -65,7 +66,7 @@ class RegistrationController extends Controller
     private function isEmailInUse($email)
     {
       $users = User:where('email', $email)->get();
-      foreach ($users as &$user) 
+      foreach ($users as $user) 
       {
             if($user->email == $email)
             {
