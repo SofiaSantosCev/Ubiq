@@ -9,6 +9,10 @@ class RegistrationController extends Controller
 {
     const ID_ROL = 2;
     
+    public function index()
+    {
+        //mostrar usuarios
+    }
     //Crear nuevo usuario
     public function store()
     {

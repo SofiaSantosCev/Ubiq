@@ -19,6 +19,14 @@ class Controller extends BaseController
         $user = User::where('email',$email)->first();       
         return $user; 
     }
+    protected function returnToken($dataToken)
+    {
+        $key = 'bHH2JilgwA3YxOqwn';
+
+        $token = JWT::encode($dataToken, $key);         
+
+        return $token;
+    }
 
     protected function getUserfromToken()
     {
