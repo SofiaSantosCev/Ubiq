@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\location;
+use App\User;
 use Illuminate\Http\Request;
 
 class LocationController extends Controller
 {
+    const ID_ROL = 1;
     /**
      * Display a listing of the resource.
      *
@@ -16,21 +17,23 @@ class LocationController extends Controller
     {
         if (parent::isLoggedIn())
         {   
-            $locations = Location::all();
-            $locationName = [];
-            $locationDescription = [];
+            $users = User::all();
+            $userName = [];
+            $userEmail = [];
+            $userPassword = [];
+            $userIds = [];
 
-
-            if(empty($categories))
+            if(empty($users))
             {
-                return parent::error(400,"There are no locations created");
+                return parent::error(400,"There are no users created");
             } 
 
-            foreach ($locations as $location) {
-                array_push($locationName, $location->name);
-                array_push($locationDescription, $location->description);
-            } 
-            return response($locations);
+            foreach ($users as $user) {
+                array_push($userName, $user->name);
+            }
+
+            return response($users);
+
         } else {
             return parent::error(403,"You don't have permission");
         }
@@ -54,47 +57,36 @@ class LocationController extends Controller
      */
     public function store(Request $request)
     {
-        if (parent::isLoggedIn())
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        
+        //Comprueba que no haya campos vacíos
+        if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
         {
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $x_coordinate = $_POST['x_coordinate'];
-            $y_coordinate = $_POST['y_coordinate'];
+            return parent::error(400, "The text fields cannot be empty");
+        }
+        
+        //Comprueba que el email no esté en uso
+        if (self::isEmailInUse($email)) 
+        {
+            return parent::error(400,"The email already exists"); 
+        }
+        
+        //mínimo 8 caracteres en la contraseña
+        if(!Validator::reachesMinLength($password, 8))
+        {
+            return parent::error(400,"Invalid password. It must be at least 8 characters long."); 
+        }
 
-
-            if (empty($name)) {
-                return response("The name of the location is empty", 400);
-            }
-
-            $location = Location::where('name', $name)->first();
-
-            if ($location != null) {
-                if ($name != $location->name) {
-                    return parent::error(400,"This location already exists");
-                }
-            }
-                    
-            $user_id = parent::getUserfromToken()->id;
-
-            $location = new Location;
-
-            $location->name = $name;
-            $location->description = $description;
-            $location->start_date = $start_date;
-            $location->end_date = $end_date;
-            $location->x_coordinate = $x_coordinate;
-            $location->y_coordinate = $y_coordinate;
-            $location->user_id = $user_id;
-
-            $location->save();
-
-            return parent::success("Location created","");
-
-            } else {
-                return $this->error(403, "You don't have permission");
-            }
+        $user = new User;
+        $user->name = $name;
+        $user->email = $email;
+        $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $user->password = $encondedPassword;
+        $user->rol_id = self::ID_ROL;
+        
+        $user->save();
     }
 
     /**

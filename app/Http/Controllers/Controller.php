@@ -93,4 +93,21 @@ class Controller extends BaseController
             }
         }
     }
+
+    protected function isAdmin(){
+        $headers = getallheaders();
+        if (!isset($headers['Authorization'])) 
+        {
+            return false;
+        } else {
+            $user = self::getUserfromToken();
+            $tokenDecoded = self::decodeToken();
+            if ($tokenDecoded->rol == 2) 
+            {
+                return true;
+            } else {
+                return self::error(301, 'no tienes permisos');
+            }
+        }
+    }
 }

@@ -11,6 +11,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+    	DB::('role')->insert([
+    		'name'=>'admin'
+    		'created_at' => Carbon::
+    	]);
+
         // $this->call(UsersTableSeeder::class);
+        DB::('user')->insert([
+        	'name'=>'Sofia',
+
+
+
+        ]);
+
     }
 }
