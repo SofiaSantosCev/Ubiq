@@ -28,6 +28,26 @@ class Controller extends BaseController
         return $token;
     }
 
+    //Comprueba si el token es valido.
+    protected function checkLogin()
+    {   
+        $headers = getallheaders();
+        if(!isset($headers['Authorization']))
+        { 
+            return false;
+        }
+
+        $tokenDecoded = self::decodeToken();
+        $user = self::getUserFromToken();
+        if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
+        {
+            return true;
+        } else {
+            return response ('You dont have permission', 301);
+        }
+
+    }
+
     protected function getUserfromToken()
     {
         $tokenDecoded = self::decodeToken();

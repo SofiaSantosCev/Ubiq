@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\location;
 use Illuminate\Http\Request;
+use App\Validator;
 
 class LocationController extends Controller
 {
@@ -12,28 +13,30 @@ class LocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    //Mostrar localizaciones
     public function index()
     {
-        if (parent::isLoggedIn())
+        if (!parent::isLoggedIn())
         {   
-            $locations = Location::all();
-            $locationName = [];
-            $locationDescription = [];
-
-
-            if(empty($categories))
-            {
-                return parent::error(400,"There are no locations created");
-            } 
-
-            foreach ($locations as $location) {
-                array_push($locationName, $location->name);
-                array_push($locationDescription, $location->description);
-            } 
-            return response($locations);
-        } else {
             return parent::error(403,"You don't have permission");
         }
+
+        $locations = Location::all();
+        $locationName = [];
+        $locationDescription = [];
+
+        if(empty($categories))
+        {
+            return parent::error(400,"There are no locations created");
+        } 
+
+        foreach ($locations as $location) {
+            array_push($locationName, $location->name);
+            array_push($locationDescription, $location->description);
+        } 
+        return response($locations);
+       
     }
 
     /**
@@ -52,6 +55,8 @@ class LocationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    //Crear y guardar localizaciones
     public function store(Request $request)
     {
         if (parent::isLoggedIn())
@@ -100,10 +105,10 @@ class LocationController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\rol  $rol
+     * @param  \App\location  $location
      * @return \Illuminate\Http\Response
      */
-    public function show(rol $rol)
+    public function show(location $location)
     {
         //
     }
@@ -114,7 +119,7 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function edit(rol $rol)
+    public function edit(location $location)
     {
         //
     }
@@ -126,9 +131,40 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, rol $rol)
+
+    //Modificar localizaciones
+    public function update(Request $request, $id)
     {
-        //
+        if(parent::checkLogin() == false){
+            return $this->error(301, "There is a problem with your session");
+        }
+        parse_str(file_get_contents("php://input"), $putData);
+        $name = $putData['name'];
+        $description = $putData['description'];
+        $start_date = $putData['start_date'];
+        $end_date = $putData['put_data'];
+        $x_coordinate = $putData['x_coordinate'];
+        $y_coordinate = $putData['y_coordinate'];
+        $user_id = $putData['user_id'];
+        //the rest of the data
+
+        //comprobación de que todos los campos estan correctamente rellenados
+        if ($title == "" or $description == ""){
+            return $this->error(400, "Tienes que rellenar todos los campos");
+        }
+        
+        $location = Location::where('id',$id)->first();
+
+        $location->title = $title;
+        $location->description = $description;
+        $location->start_date = $start_date;
+        $location->end_date = $end_date;
+        $location->x_coordinate = $x_coordinate;
+        $location->y_coordinate = $y_coordinate;
+        $location->user_id = $user_id;
+
+        $location->update();
+        return $this->success('Localizacion modificada', "");
     }
 
     /**
@@ -137,8 +173,17 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function destroy(rol $rol)
+
+    //Eliminar localizaciones
+    public function destroy(location $location)
     {
-        //
+        if(parent::checkLogin() == false) 
+        {
+            return $this->error(301,'Ha ocurrido un problema con su sesión.');
+        }
+
+        $location = Location::where('id',$id)->first();
+        $location->delete();
+        return $this->success('Localizacion eliminada.');
     }
 }
