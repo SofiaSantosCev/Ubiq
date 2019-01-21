@@ -26,7 +26,7 @@ class LocationController extends Controller
         $locationName = [];
         $locationDescription = [];
 
-        if(empty($categories))
+        if(empty($locations))
         {
             return parent::error(400,"There are no locations created");
         } 
@@ -138,6 +138,7 @@ class LocationController extends Controller
         if(parent::checkLogin() == false){
             return $this->error(301, "There is a problem with your session");
         }
+
         parse_str(file_get_contents("php://input"), $putData);
         $name = $putData['name'];
         $description = $putData['description'];
@@ -164,7 +165,7 @@ class LocationController extends Controller
         $location->user_id = $user_id;
 
         $location->update();
-        return $this->success('Localizacion modificada', "");
+        return $this->success("Localizacion modificada", "");
     }
 
     /**

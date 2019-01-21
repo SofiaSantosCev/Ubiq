@@ -18,8 +18,8 @@ class LoginController extends Controller
         $user = User::where('email', $_POST['email'])->first();
 
         $verifiedPassword = password_verify($_POST['password'], $user->password);
-        
-        if ($user->email == $_POST['email'] and $verifiedPassword)
+
+        if ($user->email == $_POST['email'] and $_POST['password'] == $user->password and $user->rol_id == 1)
         {
             $dataToken =[
                 'email' => $user->email, 

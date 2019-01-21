@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Illuminate\Http\Request;
+use App\Validator;
 
-class LocationController extends Controller
+class UserController extends Controller
 {
-    const ID_ROL = 1;
+    const ID_ROLE = 2;
     /**
      * Display a listing of the resource.
      *
@@ -84,7 +85,7 @@ class LocationController extends Controller
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user->password = $encondedPassword;
-        $user->rol_id = self::ID_ROL;
+        $user->rol_id = self::ID_ROLE;
         
         $user->save();
     }
@@ -95,7 +96,7 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function show(rol $rol)
+    public function show(User $User)
     {
         //
     }
@@ -106,7 +107,7 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function edit(rol $rol)
+    public function edit(User $User)
     {
         //
     }
@@ -118,7 +119,7 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, rol $rol)
+    public function update(Request $request, User $User)
     {
         //
     }
@@ -129,8 +130,22 @@ class LocationController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function destroy(rol $rol)
+    public function destroy($id)
     {
-        //
+        $user = User::where('id',$id)->first();
+        $user->delete();
+        return $this->success('Usuario eliminada.');
+    }
+
+    private function isEmailInUse($email)
+    {
+      $users = User::where('email', $email)->get();
+      foreach ($users as $user) 
+      {
+            if($user->email == $email)
+            {
+                return true;
+            }
+        }  
     }
 }
