@@ -23,11 +23,11 @@ class LoginController extends Controller
             return $this->error(400, "All fields have to be filled");
         }
         
-        $user = User::where('email', $_POST['email'])->first();
+        $user = User::where('email', $email)->first();
 
-        $verifiedPassword = password_verify($_POST['password'], $user->password);
+        $verifiedPassword = password_verify($password, $user->password);
 
-        if ($user->email == $_POST['email'] and $_POST['password'] == $user->password)
+        if ($user->email == $email and $verifiedPassword)
         {
             $dataToken =[
                 'email' => $user->email, 
@@ -35,10 +35,12 @@ class LoginController extends Controller
                 'random' => time()
             ];
 
-            return parent::success("Estás logeado", parent::returnToken($dataToken));
+            return parent::returnToken($dataToken);
 
         } else {
+            var_dump($user->password, $verifiedPassword);
             return parent::error(403, "usuario no tiene permisos"); 
+            
         }
     } 
 }
