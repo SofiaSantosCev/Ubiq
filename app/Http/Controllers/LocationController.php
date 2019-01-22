@@ -133,30 +133,26 @@ class LocationController extends Controller
      */
 
     //Modificar localizaciones
-    public function update(Request $request, $id)
+    public function update(Request $request, Location $location)
     {
         if(parent::checkLogin() == false){
             return $this->error(301, "There is a problem with your session");
         }
-
-        parse_str(file_get_contents("php://input"), $putData);
-        $name = $putData['name'];
-        $description = $putData['description'];
-        $start_date = $putData['start_date'];
-        $end_date = $putData['put_data'];
-        $x_coordinate = $putData['x_coordinate'];
-        $y_coordinate = $putData['y_coordinate'];
-        $user_id = $putData['user_id'];
-        //the rest of the data
+  
+        $name = $request->name;
+        $description = $request->description;
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $x_coordinate = $request->x_coordinate;
+        $y_coordinate = $request->y_coordinate;
+        $user_id = parent::getUserfromToken()->id;
 
         //comprobación de que todos los campos estan correctamente rellenados
-        if ($title == "" or $description == ""){
+        if ($name == "" or $description == ""){
             return $this->error(400, "Tienes que rellenar todos los campos");
         }
         
-        $location = Location::where('id',$id)->first();
-
-        $location->title = $title;
+        $location->name = $name;
         $location->description = $description;
         $location->start_date = $start_date;
         $location->end_date = $end_date;
@@ -165,13 +161,13 @@ class LocationController extends Controller
         $location->user_id = $user_id;
 
         $location->update();
-        return $this->success("Localizacion modificada", "");
+        return $this->success("Localization modified", "");
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\rol  $rol
+     * @param  \App\location  $location
      * @return \Illuminate\Http\Response
      */
 
@@ -183,7 +179,6 @@ class LocationController extends Controller
             return $this->error(301,'Ha ocurrido un problema con su sesión.');
         }
 
-        $location = Location::where('id',$id)->first();
         $location->delete();
         return $this->success('Localizacion eliminada.');
     }

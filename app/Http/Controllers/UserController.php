@@ -119,9 +119,22 @@ class UserController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, User $User)
+    public function update(Request $request, User $user)
     {
-        //
+        if(parent::checkLogin() == false){
+            return $this->error(301, "There is a problem with your session");
+        }
+
+        $name = $request->name;
+        $email = $request->email;
+        $password = $request->password;
+
+        $user->name = $name;
+        $user->email = $email;
+        $user->password = $password;
+
+        $user->update();
+        return $this->success("User modified", "");
     }
 
     /**
@@ -130,11 +143,10 @@ class UserController extends Controller
      * @param  \App\rol  $rol
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::where('id',$id)->first();
         $user->delete();
-        return $this->success('Usuario eliminada.');
+        return $this->success('User deleted.');
     }
 
     private function isEmailInUse($email)
