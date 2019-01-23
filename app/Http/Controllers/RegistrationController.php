@@ -11,7 +11,6 @@ class RegistrationController extends Controller
     
     public function index()
     {
-        //mostrar usuarios
     }
     //Crear nuevo usuario
     public function store()
@@ -43,11 +42,11 @@ class RegistrationController extends Controller
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user->password = $encondedPassword;
+        $user->id = $user_id;
         $user->rol_id = self::ID_ROL;
-
-        $token = parent::generateToken($email, $password);
-        
         $user->save();
+
+        $token = parent::generateToken($email, $password, $user_id);
         return response()->json([
             'token' => $token,
         ]);

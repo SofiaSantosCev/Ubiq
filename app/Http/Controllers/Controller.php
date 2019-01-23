@@ -19,15 +19,7 @@ class Controller extends BaseController
         $user = User::where('email',$email)->first();       
         return $user; 
     }
-    protected function returnToken($dataToken)
-    {
-        $key = 'bHH2JilgwA3YxOqwn';
-
-        $token = JWT::encode($dataToken, $key);         
-
-        return $token;
-    }
-
+    
     //Comprueba si el token es valido.
     protected function checkLogin()
     {   
@@ -72,16 +64,16 @@ class Controller extends BaseController
         ]);
     }
 
-    protected function generateToken($email, $password)
+    protected function generateToken($email, $password, $id)
     {
         $dataToken = [
             'email' => $email,
             'password' => $password,
+            'id' => $id,
             'random' => time()
         ];
 
         $token = JWT::encode($dataToken, self::TOKEN_KEY);         
-
         return $token;
     }
 
@@ -106,23 +98,6 @@ class Controller extends BaseController
             $user = self::getUserfromToken();
             $tokenDecoded = self::decodeToken();
             if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
-            {
-                return true;
-            } else {
-                return self::error(301, 'no tienes permisos');
-            }
-        }
-    }
-
-    protected function isAdmin(){
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) 
-        {
-            return false;
-        } else {
-            $user = self::getUserfromToken();
-            $tokenDecoded = self::decodeToken();
-            if ($tokenDecoded->rol == 2) 
             {
                 return true;
             } else {

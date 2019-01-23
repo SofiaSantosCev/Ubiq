@@ -11,7 +11,6 @@ use Auth;
 
 class LoginController extends Controller
 {
- 
     public function login()
     {
         $key = 'bHH2JilgwA3YxOqwn';
@@ -24,23 +23,22 @@ class LoginController extends Controller
         }
         
         $user = User::where('email', $email)->first();
+        $id = $user->id;
 
         $verifiedPassword = password_verify($password, $user->password);
 
         if ($user->email == $email and $verifiedPassword)
         {
-            $dataToken =[
-                'email' => $user->email, 
-                'password' => $user->password,
-                'random' => time()
-            ];
-
-            return parent::returnToken($dataToken);
+            $token = parent::generateToken($email, $password, $id);
+            
+            return response()->json([
+                'token' => $token,
+                'user_id'=> $id
+            ]);
 
         } else {
             var_dump($user->password, $verifiedPassword);
             return parent::error(403, "usuario no tiene permisos"); 
-            
         }
     } 
 }

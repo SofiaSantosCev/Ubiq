@@ -22,21 +22,17 @@ class LocationController extends Controller
             return parent::error(403,"You don't have permission");
         }
 
-        $locations = Location::all();
-        $locationName = [];
-        $locationDescription = [];
+        $id = parent::getUserfromToken()->id;
+        $hisLocations = Location::where('user_id', $id)->get();
 
-        if(empty($locations))
+        if(empty($hisLocations))
         {
             return parent::error(400,"There are no locations created");
-        } 
+        }
 
-        foreach ($locations as $location) {
-            array_push($locationName, $location->name);
-            array_push($locationDescription, $location->description);
-        } 
-        return response($locations);
-       
+        return response()->json([
+            'locations' => $hisLocations,
+        ]);
     }
 
     /**
@@ -67,7 +63,6 @@ class LocationController extends Controller
             $end_date = $_POST['end_date'];
             $x_coordinate = $_POST['x_coordinate'];
             $y_coordinate = $_POST['y_coordinate'];
-
 
             if (empty($name)) {
                 return response("The name of the location is empty", 400);

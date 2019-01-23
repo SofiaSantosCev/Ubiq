@@ -16,28 +16,20 @@ class UserController extends Controller
      */
     public function index()
     {
-        if (parent::isLoggedIn())
-        {   
-            $users = User::all();
-            $userName = [];
-            $userEmail = [];
-            $userPassword = [];
-            $userIds = [];
-
-            if(empty($users))
-            {
-                return parent::error(400,"There are no users created");
-            } 
-
-            foreach ($users as $user) {
-                array_push($userName, $user->name);
-            }
-
-            return response($users);
-
-        } else {
-            return parent::error(403,"You don't have permission");
+        if (!parent::isLoggedIn())
+        {  
+            return parent::error(403,"You don't have permission"); 
         }
+        
+        $users = User::all();
+        if(empty($users))
+        {
+            return parent::error(400,"There are no users created");
+        } 
+
+        return response()->json([
+            'users'=>$users
+        ]);
     }
 
     /**
