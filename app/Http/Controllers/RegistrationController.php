@@ -11,6 +11,7 @@ class RegistrationController extends Controller
     
     public function index()
     {
+
     }
   
     public function store()
@@ -46,9 +47,10 @@ class RegistrationController extends Controller
         $user->rol_id = self::ID_ROL;
         $user->save();
 
-        $token = parent::generateToken($email, $password, $user_id);
+        $token = parent::generateToken($email, $password,);
         return response()->json([
             'token' => $token,
+            'user_id'=>  $user_id
         ]);
     }
 

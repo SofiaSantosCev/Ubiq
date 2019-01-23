@@ -35,7 +35,7 @@ class Controller extends BaseController
         {
             return true;
         } else {
-            return response ('You dont have permission', 301);
+            return response (301,'You dont have permission');
         }
 
     }

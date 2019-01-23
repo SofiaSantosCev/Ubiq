@@ -117,9 +117,9 @@ class UserController extends Controller
             return $this->error(301, "There is a problem with your session");
         }
 
-        $name = $request->name;
-        $email = $request->email;
-        $password = $request->password;
+        $name = $request['name'];
+        $email = $request['email'];
+        $password = $request['password'];
 
         $user->name = $name;
         $user->email = $email;

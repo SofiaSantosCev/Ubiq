@@ -17,22 +17,13 @@ class LocationController extends Controller
     //Mostrar localizaciones
     public function index()
     {
-        if (!parent::isLoggedIn())
+        if (parent::isLoggedIn())
         {   
-            return parent::error(403,"You don't have permission");
+            return response()->json([
+            'locations' => Location::where('user_id', parent::getUserfromToken()->id)->get();
+            ],200);
         }
-
-        $id = parent::getUserfromToken()->id;
-        $hisLocations = Location::where('user_id', $id)->get();
-
-        if(empty($hisLocations))
-        {
-            return parent::error(400,"There are no locations created");
-        }
-
-        return response()->json([
-            'locations' => $hisLocations,
-        ]);
+       
     }
 
     /**
@@ -57,36 +48,19 @@ class LocationController extends Controller
     {
         if (parent::isLoggedIn())
         {
-            $name = $_POST['name'];
-            $description = $_POST['description'];
-            $start_date = $_POST['start_date'];
-            $end_date = $_POST['end_date'];
-            $x_coordinate = $_POST['x_coordinate'];
-            $y_coordinate = $_POST['y_coordinate'];
-
             if (empty($name)) {
                 return response("The name of the location is empty", 400);
             }
-
-            $location = Location::where('name', $name)->first();
-
-            if ($location != null) {
-                if ($name != $location->name) {
-                    return parent::error(400,"This location already exists");
-                }
-            }
                     
-            $user_id = parent::getUserfromToken()->id;
+            $location = new Location();
 
-            $location = new Location;
-
-            $location->name = $name;
-            $location->description = $description;
-            $location->start_date = $start_date;
-            $location->end_date = $end_date;
-            $location->x_coordinate = $x_coordinate;
-            $location->y_coordinate = $y_coordinate;
-            $location->user_id = $user_id;
+            $location->name = $request->name;
+            $location->description = $request->description;
+            $location->start_date = $request->start_date;
+            $location->end_date = $request->end_date;
+            $location->x_coordinate = $request->x_coordinate;
+            $location->y_coordinate = $request->y_coordinate;
+            $location->user_id =  parent::getUserfromToken()->id;
 
             $location->save();
 
@@ -105,7 +79,9 @@ class LocationController extends Controller
      */
     public function show(location $location)
     {
-        //
+        return response()->json([
+                'location' => $location,
+        ]);
     }
 
     /**
@@ -133,29 +109,8 @@ class LocationController extends Controller
         if(parent::checkLogin() == false){
             return $this->error(301, "There is a problem with your session");
         }
-  
-        $name = $request->name;
-        $description = $request->description;
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-        $x_coordinate = $request->x_coordinate;
-        $y_coordinate = $request->y_coordinate;
-        $user_id = parent::getUserfromToken()->id;
 
-        //comprobación de que todos los campos estan correctamente rellenados
-        if ($name == "" or $description == ""){
-            return $this->error(400, "Tienes que rellenar todos los campos");
-        }
-        
-        $location->name = $name;
-        $location->description = $description;
-        $location->start_date = $start_date;
-        $location->end_date = $end_date;
-        $location->x_coordinate = $x_coordinate;
-        $location->y_coordinate = $y_coordinate;
-        $location->user_id = $user_id;
-
-        $location->update();
+        $location->update($request->all());
         return $this->success("Localization modified", "");
     }
 
@@ -169,7 +124,7 @@ class LocationController extends Controller
     //Eliminar localizaciones
     public function destroy(location $location)
     {
-        if(parent::checkLogin() == false) 
+        if(!parent::checkLogin()) 
         {
             return $this->error(301,'Ha ocurrido un problema con su sesión.');
         }

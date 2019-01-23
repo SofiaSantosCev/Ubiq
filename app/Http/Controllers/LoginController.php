@@ -25,11 +25,9 @@ class LoginController extends Controller
         $user = User::where('email', $email)->first();
         $id = $user->id;
 
-        $verifiedPassword = password_verify($password, $user->password);
-
-        if ($user->email == $email and $verifiedPassword)
+        if ($user->email == $email and password_verify($password, $user->password))
         {
-            $token = parent::generateToken($email, $password, $id);
+            $token = parent::generateToken($email, $password);
             
             return response()->json([
                 'token' => $token,
@@ -38,7 +36,7 @@ class LoginController extends Controller
 
         } else {
             
-            return parent::error(400, "usuario no tiene permisos"); 
+            return parent::error(400, "Wrong data"); 
         }
     } 
 }
