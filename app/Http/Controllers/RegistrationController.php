@@ -12,7 +12,7 @@ class RegistrationController extends Controller
     public function index()
     {
     }
-    //Crear nuevo usuario
+  
     public function store()
     {
         $name = $_POST['name'];

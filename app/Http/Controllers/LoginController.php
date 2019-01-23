@@ -37,8 +37,8 @@ class LoginController extends Controller
             ]);
 
         } else {
-            var_dump($user->password, $verifiedPassword);
-            return parent::error(403, "usuario no tiene permisos"); 
+            
+            return parent::error(400, "usuario no tiene permisos"); 
         }
     } 
 }
