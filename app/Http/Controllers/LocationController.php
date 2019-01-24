@@ -20,7 +20,7 @@ class LocationController extends Controller
         if (parent::isLoggedIn())
         {   
             return response()->json([
-            'locations' => Location::where('user_id', parent::getUserfromToken()->id)->get();
+            'locations' => Location::where('user_id', parent::getUserfromToken()->id)->get()
             ],200);
         }
        
@@ -46,11 +46,10 @@ class LocationController extends Controller
     //Crear y guardar localizaciones
     public function store(Request $request)
     {
-        if (parent::isLoggedIn())
+        if (!parent::isLoggedIn())
         {
-            if (empty($name)) {
-                return response("The name of the location is empty", 400);
-            }
+            return $this->error(403, "You don't have permission");
+        }
                     
             $location = new Location();
 
@@ -65,10 +64,6 @@ class LocationController extends Controller
             $location->save();
 
             return parent::success("Location created","");
-
-            } else {
-                return $this->error(403, "You don't have permission");
-            }
     }
 
     /**

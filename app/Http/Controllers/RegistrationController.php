@@ -43,15 +43,8 @@ class RegistrationController extends Controller
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user->password = $encondedPassword;
-        $user->id = $user_id;
         $user->rol_id = self::ID_ROL;
         $user->save();
-
-        $token = parent::generateToken($email, $password,);
-        return response()->json([
-            'token' => $token,
-            'user_id'=>  $user_id
-        ]);
     }
 
     //Eliminar usuario

@@ -64,12 +64,11 @@ class Controller extends BaseController
         ]);
     }
 
-    protected function generateToken($email, $password, $id)
+    protected function generateToken($email, $password)
     {
         $dataToken = [
             'email' => $email,
             'password' => $password,
-            'id' => $id,
             'random' => time()
         ];
 
