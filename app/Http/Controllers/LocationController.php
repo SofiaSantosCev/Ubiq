@@ -125,6 +125,6 @@ class LocationController extends Controller
         }
 
         $location->delete();
-        return $this->success('Localizacion eliminada.');
+        return $this->success("Deleted","");
     }
 }

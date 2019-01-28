@@ -35,7 +35,7 @@ class Controller extends BaseController
         {
             return true;
         } else {
-            return response (301,'You dont have permission');
+            return self::error(301,'You dont have permission');
         }
 
     }
