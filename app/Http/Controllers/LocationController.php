@@ -63,7 +63,7 @@ class LocationController extends Controller
 
             $location->save();
 
-            return parent::success("Location created","");
+            return parent::success("Location created",$location->id);
     }
 
     /**
