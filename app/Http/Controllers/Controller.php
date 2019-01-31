@@ -47,33 +47,10 @@ class Controller extends BaseController
         return $user;
     }
 
-    protected function error($code, $message)
-    {
-        $json = ['message'=> $message];
-        $json = json_encode($json);
-        return response($json, $code)->header('Access-Control-Allow-Origin', '*');
-    }
-
-    protected function success($message, $data = [])
-    {
-        $json = ['message'=> $message, 'data' => $data];
-        $json = json_encode($json);
-        return response($json, 200)->withHeaders([
-            'Content-Type' => 'application/json',
-            'Access-Control-Allow-Origin' => '*',
-        ]);
-    }
-
-    protected function generateToken($email, $password)
-    {
-        $dataToken = [
-            'email' => $email,
-            'password' => $password,
-            'random' => time()
-        ];
-
-        $token = JWT::encode($dataToken, self::TOKEN_KEY);         
-        return $token;
+    protected function response($text, $code){
+        return response()->json([
+            'message' => $text
+        ],$code);
     }
 
     protected function decodeToken() 
@@ -87,21 +64,4 @@ class Controller extends BaseController
         }
     }
 
-    protected function IsLoggedIn()
-    {
-        $headers = getallheaders();
-        if (!isset($headers['Authorization'])) 
-        {
-            return false;
-        } else {
-            $user = self::getUserfromToken();
-            $tokenDecoded = self::decodeToken();
-            if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
-            {
-                return true;
-            } else {
-                return self::error(301, "you dont have permission");
-            }
-        }
-    }
 }

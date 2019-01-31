@@ -17,7 +17,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('register', 'RegistrationController');
-Route::post('login','LoginController@login');
+Route::apiResource('register', 'UserController@register');
+Route::post('login','UserController@login');
 Route::apiResource('user', 'UserController');
 Route::apiResource('location', 'LocationController');
