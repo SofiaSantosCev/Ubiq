@@ -66,6 +66,34 @@ class UserController extends Controller
             
             return parent::response("You don't have access",400); 
         }
+    }
+
+    public function recoverPassword(){
+        if (Validator::isEmailInUse($request->email)){
+          try {
+              $user = parent::findUser($request->email);
+              $newPassword = parent::randomString(8);
+              $to_name = $user->name;
+              $to_email = $user->email;
+              $user->update([
+                  'password' => Hash::make($newPassword),
+              ]);
+              $data = array('name'=>$user->name, "password" => $newPassword );
+                  
+              Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {
+                  $message->to($to_email, $to_name)
+                          ->subject('Picpoint | Forgot password');
+                  $message->from('apppicpoint@gmail.com','Picpoint');
+              });
+              return parent::response('New password sent', 200);
+              
+          } catch (Exception $e) {
+              return parent::response('Error in the request', 400);
+          }      
+       }
+       else {
+          return parent::response('This email is not registered', 400);
+       }
     } 
 
     /**
