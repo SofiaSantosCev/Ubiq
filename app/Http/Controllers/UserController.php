@@ -27,7 +27,6 @@ class UserController extends Controller
         }
         
         $users = User::all();
-        $ids = $users->id;
 
         if(empty($users))
         {
@@ -35,8 +34,7 @@ class UserController extends Controller
         } 
 
         return response()->json([
-            'users'=>$users,
-            'ids' => $ids
+            'users'=>$users
         ]);
     }
 
@@ -66,7 +64,7 @@ class UserController extends Controller
 
         } else {
             
-            return parent::response("Wrong data",400); 
+            return parent::response("You don't have access",400); 
         }
     } 
 
@@ -93,6 +91,7 @@ class UserController extends Controller
         $name = $_POST['name'];
         $email = $_POST['email'];
         $password = $_POST['password'];
+        $rol_id = $_POST['rol_id'];
         
         //Comprueba que no haya campos vacíos
         if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
@@ -112,12 +111,18 @@ class UserController extends Controller
             return parent::response("Invalid password. It must be at least 8 characters long.",400); 
         }
 
+        
+
         $user = new User;
         $user->name = $name;
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
+        if (isset($rol_id)){
+          $user->rol_id = $rol_id;
+        } else {
+          $user->rol_id = self::ROLE_ID;
+        }
         $user->password = $encondedPassword;
-        $user->rol_id = self::ROLE_ID;
         $user->save();
 
         //Si queremos loguearnos directamente sin pasar por el login
