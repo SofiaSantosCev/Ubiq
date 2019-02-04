@@ -46,9 +46,9 @@ class LocationController extends Controller
     //Crear y guardar localizaciones
     public function store(Request $request)
     {
-        if (!parent::isLoggedIn())
+        if (!parent::checkLogin())
         {
-            return $this->error(403, "You don't have permission");
+            return parent::response("You don't have permission",403);
         }
                     
             $location = new Location();
@@ -63,7 +63,10 @@ class LocationController extends Controller
 
             $location->save();
 
-            return parent::success("Location created",$location->id);
+            return response()->json([
+                'message' => "Location created",
+                'id'=>$location->id
+            ]);
     }
 
     /**
@@ -102,11 +105,11 @@ class LocationController extends Controller
     public function update(Request $request, Location $location)
     {
         if(parent::checkLogin() == false){
-            return $this->error(301, "There is a problem with your session");
+            return parent::response("There is a problem with your session",301);
         }
 
         $location->update($request->all());
-        return $this->success("Localization modified", "");
+        return parent::response("Localization modified", 200);
     }
 
     /**
@@ -121,10 +124,10 @@ class LocationController extends Controller
     {
         if(!parent::checkLogin()) 
         {
-            return $this->error(301,'Ha ocurrido un problema con su sesión.');
+            return parent::response('Ha ocurrido un problema con su sesión.',301);
         }
 
         $location->delete();
-        return $this->success("Deleted","");
+        return parent::response("Deleted",200);
     }
 }
