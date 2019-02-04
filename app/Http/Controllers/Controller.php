@@ -14,6 +14,7 @@ class Controller extends BaseController
 
     protected const TOKEN_KEY = 'bHH2JilgwA3YxOqwn';
 
+    //Busca en la BBDD el usuario con el email introducido.
     protected function findUser($email)
     {
         $user = User::where('email',$email)->first();       
@@ -40,6 +41,7 @@ class Controller extends BaseController
 
     }
 
+    //Obtiene los datos del usuario del token decodificado.
     protected function getUserfromToken()
     {
         $tokenDecoded = self::decodeToken();
@@ -47,12 +49,14 @@ class Controller extends BaseController
         return $user;
     }
 
+    //Respuesta personalizable para success o error
     protected function response($text, $code){
         return response()->json([
             'message' => $text
         ],$code);
     }
 
+    //Decodificador de token.
     protected function decodeToken() 
     {
         $headers = getallheaders();

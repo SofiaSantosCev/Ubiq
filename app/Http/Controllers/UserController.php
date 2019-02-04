@@ -10,7 +10,8 @@ use Auth;
 
 class UserController extends Controller
 {
-    const ID_ROLE = 2;
+    const ROLE_ID = 2;
+    const TOKEN_KEY = 'bHH2JilgwA3YxOqwn';
     /**
      * Display a listing of the resource.
      *
@@ -39,51 +40,9 @@ class UserController extends Controller
         ]);
     }
 
-    public function register(Request $request){
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-        
-        //Comprueba que no haya campos vacíos
-        if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
-        {
-            return parent::response("The text fields cannot be empty",400);
-        }
-        
-        //Comprueba que el email no esté en uso
-        if (self::isEmailInUse($email)) 
-        {
-            return parent::response("The email already exists",400); 
-        }
-        
-        //mínimo 8 caracteres en la contraseña
-        if(!Validator::reachesMinLength($password, 8))
-        {
-            return parent::response("Invalid password. It must be at least 8 characters long.",400); 
-        }
-
-        $user = new User;
-        $user->name = $name;
-        $user->email = $email;
-        $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $user->password = $encondedPassword;
-        $user->rol_id = self::ID_ROLE;
-        $user->save();
-
-        //Si queremos loguearnos directamente sin pasar por el login
-        /*
-        $token = self::generateToken($email, $password);
-            return response()->json ([
-                'token' => $token,
-                'role_id' => $user->role_id
-            ]);
-        */
-    }
-
+    //Logea al usuario
     public function login()
     {
-        $key = 'bHH2JilgwA3YxOqwn';
-
         $email = $_POST['email'];
         $password = $_POST['password'];
 
@@ -93,16 +52,16 @@ class UserController extends Controller
         
         $user = User::where('email', $email)->first();
         $id = $user->id;
-        $rol_id = $user->rol_id;
+        $role_id = $user->rol_id;
 
-        if ($user->email == $email and password_verify($password, $user->password) and self::ID_ROLE == 2)
+        if ($user->email == $email and password_verify($password, $user->password))
         {
             $token = self::generateToken($email, $password);
             
             return response()->json([
                 'token' => $token,
                 'user_id'=> $id, 
-                'rol_id' => $rol_id
+                'role_id' => $role_id
             ]);
 
         } else {
@@ -127,6 +86,8 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
+    //Crea un usuario en la BBDD desde un formulario de la app
     public function store(Request $request)
     {
         $name = $_POST['name'];
@@ -156,9 +117,17 @@ class UserController extends Controller
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
         $user->password = $encondedPassword;
-        $user->rol_id = self::ID_ROLE;
-        
+        $user->rol_id = self::ROLE_ID;
         $user->save();
+
+        //Si queremos loguearnos directamente sin pasar por el login
+        /*
+        $token = self::generateToken($email, $password);
+            return response()->json ([
+                'token' => $token,
+                'role_id' => $user->role_id
+            ]);
+        */
     }
 
     /**
@@ -200,7 +169,7 @@ class UserController extends Controller
             return parent::response('Use a valid email.', 400);
         }
 
-        if(isEmailInUse($request['email']) && !is_null($request['email'] &&))
+        
 
         $name = $request['name'];
         $email = $request['email'];
@@ -226,6 +195,7 @@ class UserController extends Controller
         return parent::response('User deleted.',200);
     }
 
+    //Comprueba si el email ya está utilizado
     private function isEmailInUse($email)
     {
       $users = User::where('email', $email)->get();
@@ -238,6 +208,7 @@ class UserController extends Controller
         }  
     }
 
+    //Genera el token con los datos introducidos
     protected function generateToken($email, $password)
     {
         $dataToken = [
