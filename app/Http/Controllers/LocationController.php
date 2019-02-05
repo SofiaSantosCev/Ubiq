@@ -50,23 +50,23 @@ class LocationController extends Controller
         {
             return parent::response("You don't have permission",403);
         }
-                    
-            $location = new Location();
+                
+        $location = new Location();
 
-            $location->name = $request->name;
-            $location->description = $request->description;
-            $location->start_date = $request->start_date;
-            $location->end_date = $request->end_date;
-            $location->x_coordinate = $request->x_coordinate;
-            $location->y_coordinate = $request->y_coordinate;
-            $location->user_id =  parent::getUserfromToken()->id;
+        $location->name = $request->name;
+        $location->description = $request->description;
+        $location->start_date = $request->start_date;
+        $location->end_date = $request->end_date;
+        $location->x_coordinate = $request->x_coordinate;
+        $location->y_coordinate = $request->y_coordinate;
+        $location->user_id =  parent::getUserfromToken()->id;
 
-            $location->save();
+        $location->save();
 
-            return response()->json([
-                'message' => "Location created",
-                'id'=>$location->id
-            ]);
+        return response()->json([
+            'message' => "Location created",
+            'id'=>$location->id
+        ]);
     }
 
     /**

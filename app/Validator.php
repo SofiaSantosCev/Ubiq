@@ -4,7 +4,6 @@ namespace App;
 
 class Validator
 {
-	
 	public static function isValidEmail($email)
 	{
 	  $matches = null;
