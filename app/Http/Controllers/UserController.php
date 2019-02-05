@@ -26,7 +26,7 @@ class UserController extends Controller
             return parent::response("You don't have permission", 403); 
         }
         
-        $users = User::all();
+        $users = User::where('rol_id',self::ROLE_ID)->get();
 
         if(empty($users))
         {
