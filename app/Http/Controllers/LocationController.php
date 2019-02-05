@@ -17,7 +17,7 @@ class LocationController extends Controller
     //Mostrar localizaciones
     public function index()
     {
-        if (parent::isLoggedIn())
+        if (parent::checkLogin())
         {   
             return response()->json([
             'locations' => Location::where('user_id', parent::getUserfromToken()->id)->get()
