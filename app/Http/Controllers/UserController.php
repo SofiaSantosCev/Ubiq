@@ -8,6 +8,7 @@ use App\Validator;
 use \Firebase\JWT\JWT;
 use Auth;
 use Mail;
+use Hash;
 
 class UserController extends Controller
 {
@@ -69,7 +70,8 @@ class UserController extends Controller
         }
     }
 
-    public function forgotPassword(Request $request){
+    //Recuperacion de contraseña
+    public function recoveryPassword(Request $request){
         if (Validator::isEmailInUse($request->email)){
            try {
                $user = parent::findUser($request->email);
@@ -79,6 +81,7 @@ class UserController extends Controller
                $user->update([
                    'password' => Hash::make($newPassword),
                ]);
+
                $data = array('name'=>$user->name, "password" => $newPassword );
                    
                Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {

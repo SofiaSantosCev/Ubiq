@@ -12,6 +12,8 @@ class User extends Model
 {
 	use SoftDeletes;
 	use Notifiable;
+
+	protected $fillable = ['password'];
     
     public function role()
     {

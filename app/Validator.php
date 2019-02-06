@@ -35,4 +35,17 @@ class Validator
         return strlen($string) >= $min;
         
     }
+    
+    public static function isEmailInUse($email)
+    {  
+        $users = User::where('email', $email)->get();
+        foreach ($users as &$user) 
+        {
+            if ($user->email == $email) 
+            {
+                return true; 
+            }
+        }
+        
+    }
 }
