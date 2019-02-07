@@ -202,19 +202,15 @@ class UserController extends Controller
             return parent::response("There is a problem with your session",301);
         }
 
-        if(!Validator::isValidEmail($request['email'] && !is_null($request['email']))){
+        if(!Validator::isValidEmail($request['email']) && !is_null($request['email'])){
             return parent::response('Use a valid email.', 400);
         }
 
-        
-
         $name = $request['name'];
         $email = $request['email'];
-        $password = $request['password'];
 
         $user->name = $name;
         $user->email = $email;
-        $user->password = $password;
 
         $user->update();
         return parent::response("User modified",200);
