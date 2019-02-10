@@ -253,4 +253,19 @@ class UserController extends Controller
         $token = JWT::encode($dataToken, self::TOKEN_KEY);         
         return $token;
     }
+
+    private function banned(Request $request, User $user){
+        if(parent::checkLogin() == false){
+            return parent::response("There is a problem with your session",301);
+        }
+
+        $bannedState = $request['banned'];
+
+        $user->banned = $bannedState;
+
+        $user->update();
+
+        return parent::response("User modified",200);
+        
+    }
 }
