@@ -21,5 +21,5 @@ Route::post('login','UserController@login');
 Route::apiResource('user', 'UserController');
 Route::apiResource('location', 'LocationController');
 Route::post('recovery','UserController@recoveryPassword');
-Route::apiResource('banned', 'UserController@banned');
+Route::put('banned/{id}', 'UserController@banned');
 
