@@ -147,13 +147,14 @@ class UserController extends Controller
         $user->name = $name;
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
         if (isset($rol_id)){
-          $user->rol_id = $rol_id;
-      } else {
-          $user->rol_id = self::ROLE_ID;
-      }
-      $user->password = $encondedPassword;
-      $user->save();
+            $user->rol_id = $rol_id;
+        } else {
+            $user->rol_id = self::ROLE_ID;
+        }
+        $user->password = $encondedPassword;
+        $user->save();
     }
 
     /**
@@ -262,7 +263,11 @@ public function banned($id){
 
     $user->update();
 
-    return response("banned modified",200);
+    return response()->json([
+        "message" => "user banned",
+        "code" => 200,
+        "status" => $user->banned,
+    ]);
 
 }
 }
