@@ -73,32 +73,31 @@ class UserController extends Controller
     //Recuperacion de contraseña
     public function recoveryPassword(Request $request){
         if (Validator::isEmailInUse($request->email)){
-         try {
-             $user = parent::findUser($request->email);
-             $newPassword = parent::randomString(8);
-             $to_name = $user->name;
-             $to_email = $user->email;
-             $user->update([
-                 'password' => Hash::make($newPassword),
-             ]);
+            try {
+                $user = parent::findUser($request->email);
+                $newPassword = parent::randomString(8);
+                $to_name = $user->name;
+                $to_email = $user->email;
+                $user->update([
+                    'password' => Hash::make($newPassword),
+                ]);
 
-             $data = array('name'=>$user->name, "password" => $newPassword );
+                $data = array('name'=>$user->name, "password" => $newPassword );
 
-             Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {
-                 $message->to($to_email, $to_name)
-                 ->subject('Ubiq | Forgot password');
-                 $message->from('sofia_santos_apps1ma1718@cev.com','Ubiq');
-             });
-             return parent::response('New password sent', 200);
+                Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {
+                    $message->to($to_email, $to_name)->subject('Ubiq | Forgot password');
+                    $message->from('sofia_santos_apps1ma1718@cev.com','Ubiq');
+                });
+                return parent::response('New password sent', 200);
 
-         } catch (Exception $e) {
-             return parent::response('Error in the request', 400);
-         }      
-     }
-     else {
-         return parent::response('This email is not registered', 400);
-     }
- }
+            } catch (Exception $e) {
+                return parent::response('Error in the request', 400);
+            }      
+        
+        } else {
+            return parent::response('This email is not registered', 400);
+        }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -123,7 +122,7 @@ class UserController extends Controller
         $name = $_POST['name'];
         $email = $_POST['email'];
         $password = $_POST['password'];
-        $rol_id = $_POST['rol_id'];
+        $rol_id = 2;
         
         //Comprueba que no haya campos vacíos
         if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
@@ -155,6 +154,8 @@ class UserController extends Controller
         }
         $user->password = $encondedPassword;
         $user->save();
+
+        return parent::response("User created", 200);
     }
 
     /**
@@ -165,7 +166,9 @@ class UserController extends Controller
      */
     public function show(User $User)
     {
-        //
+        return response()->json([
+            'user'=>$User
+        ]);
     }
 
     /**
@@ -199,11 +202,12 @@ class UserController extends Controller
         if(!Validator::isValidEmail($request['email']) && !is_null($request['email'])){
             return parent::response('Use a valid email.', 400);
         }
-        /*//Comprueba que el email no esté en uso
+        
+        //Comprueba que el email no esté en uso
         if (self::isEmailInUse($email)) 
         {
             return parent::response("The email already exists",400); 
-        }*/
+        }
 
         if($user->name != $name && !is_null($name)){
             $user->name = $name;
