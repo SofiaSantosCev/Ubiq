@@ -11,19 +11,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-    	DB::('role')->insert([
-    		'name'=>'admin'
-    		'created_at' => Carbon::
+    	DB::table('roles')->insert([
+    		'name'=>'admin',
     	]);
 
+        DB::table('roles')->insert([
+            'name'=>'final',
+        ]);
+
         // $this->call(UsersTableSeeder::class);
-        DB::('user')->insert([
-        	'name'=>'Sofia',
+        DB::table('users')->insert([
+        	'name'=>'admin',
+            'email' => 'admin@mail.com',
+            'password' => password_hash(12345678, PASSWORD_DEFAULT),
+            'rol_id' => 1,
+            'banned'=>0
+        ]);
             
 
 
 
-        ]);
 
     }
 }

@@ -23,6 +23,7 @@ class CreateUsersTable extends Migration
             $table->foreign('rol_id')->references('id')->on('roles');
             $table->boolean('banned');
             $table->timestamps();
+            $table->timestamp('deleted_at')->nullable();
         });
     }
 
