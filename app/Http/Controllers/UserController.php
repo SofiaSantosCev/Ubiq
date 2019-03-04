@@ -28,7 +28,7 @@ class UserController extends Controller
             return parent::response("You don't have permission", 403); 
         }
         
-        $users = User::where('rol_id',self::ROLE_ID)->get();
+        $users = User::all();
 
         if(empty($users))
         {
@@ -72,32 +72,31 @@ class UserController extends Controller
     //Recuperacion de contraseña
     public function recoveryPassword(Request $request){
         if (Validator::isEmailInUse($request->email)){
-           try {
-               $user = parent::findUser($request->email);
-               $newPassword = parent::randomString(8);
-               $to_name = $user->name;
-               $to_email = $user->email;
-               $user->update([
-                   'password' => Hash::make($newPassword),
-               ]);
+            try {
+                $user = parent::findUser($request->email);
+                $newPassword = parent::randomString(8);
+                $to_name = $user->name;
+                $to_email = $user->email;
+                $user->update([
+                    'password' => Hash::make($newPassword),
+                ]);
 
-               $data = array('name'=>$user->name, "password" => $newPassword );
-                   
-               Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {
-                   $message->to($to_email, $to_name)
-                           ->subject('Ubiq | Forgot password');
-                   $message->from('sofia_santos_apps1ma1718@cev.com','Ubiq');
-               });
-               return parent::response('New password sent', 200);
-               
-           } catch (Exception $e) {
-               return parent::response('Error in the request', 400);
-           }      
+                $data = array('name'=>$user->name, "password" => $newPassword );
+
+                Mail::send('emails.forgot', $data, function($message) use ($to_name, $to_email) {
+                    $message->to($to_email, $to_name)->subject('Ubiq | Forgot password');
+                    $message->from('sofia_santos_apps1ma1718@cev.com','Ubiq');
+                });
+                return parent::response('New password sent', 200);
+
+            } catch (Exception $e) {
+                return parent::response('Error in the request', 400);
+            }      
+        
+        } else {
+            return parent::response('This email is not registered', 400);
         }
-        else {
-           return parent::response('This email is not registered', 400);
-        }
-   }
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -122,7 +121,7 @@ class UserController extends Controller
         $name = $_POST['name'];
         $email = $_POST['email'];
         $password = $_POST['password'];
-        $rol_id = $_POST['rol_id'];
+        $rol_id = 2;
         
         //Comprueba que no haya campos vacíos
         if(Validator::isStringEmpty($email) or Validator::isStringEmpty($name) or Validator::isStringEmpty($password))
@@ -146,23 +145,17 @@ class UserController extends Controller
         $user->name = $name;
         $user->email = $email;
         $encondedPassword = password_hash($password, PASSWORD_DEFAULT);
+        
         if (isset($rol_id)){
-          $user->rol_id = $rol_id;
+            $user->rol_id = $rol_id;
         } else {
-          $user->rol_id = self::ROLE_ID;
+            $user->rol_id = self::ROLE_ID;
         }
         $user->password = $encondedPassword;
         $user->banned = 0;
         $user->save();
 
-        //Si queremos loguearnos directamente sin pasar por el login
-        /*
-        $token = self::generateToken($email, $password);
-            return response()->json ([
-                'token' => $token,
-                'role_id' => $user->role_id
-            ]);
-        */
+        return parent::response("User created", 200);
     }
 
     /**
@@ -173,7 +166,9 @@ class UserController extends Controller
      */
     public function show(User $User)
     {
-        //
+        return response()->json([
+            'user'=>$User
+        ]);
     }
 
     /**
@@ -196,19 +191,31 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        if(parent::checkLogin() == false){
+
+        $name = $request['name'];
+        $email = $request['email'];
+
+        if(!parent::checkLogin()){
             return parent::response("There is a problem with your session",301);
         }
 
         if(!Validator::isValidEmail($request['email']) && !is_null($request['email'])){
             return parent::response('Use a valid email.', 400);
         }
+        
+        //Comprueba que el email no esté en uso
+        if (self::isEmailInUse($email)) 
+        {
+            return parent::response("The email already exists",400); 
+        }
 
-        $name = $request['name'];
-        $email = $request['email'];
+        if($user->name != $name && !is_null($name)){
+            $user->name = $name;
+        }
 
-        $user->name = $name;
-        $user->email = $email;
+        if($user->email != $email && !is_null($email) && !self::isEmailInUse($email)){
+            $user->email = $email;
+        }
 
         $user->update();
         return parent::response("User modified",200);
@@ -228,42 +235,43 @@ class UserController extends Controller
 
     //Comprueba si el email ya está utilizado
     private function isEmailInUse($email)
-    {
-      $users = User::where('email', $email)->get();
-      foreach ($users as $user) 
-      {
-            if($user->email == $email)
-            {
-                return true;
-            }
-        }  
-    }
-
-    //Genera el token con los datos introducidos
-    protected function generateToken($email, $password)
-    {
-        $dataToken = [
-            'email' => $email,
-            'password' => $password,
-            'random' => time()
-        ];
-
-        $token = JWT::encode($dataToken, self::TOKEN_KEY);         
-        return $token;
-    }
-
-    private function banned(Request $request, User $user){
-        if(parent::checkLogin() == false){
-            return parent::response("There is a problem with your session",301);
+    {  
+        if (User::where('email', $email)->first()){
+            return true;
+        } else {
+            return false; 
         }
-
-        $bannedState = $request['banned'];
-
-        $user->banned = $bannedState;
-
-        $user->update();
-
-        return parent::response("User modified",200);
-        
     }
+
+//Genera el token con los datos introducidos
+protected function generateToken($email, $password)
+{
+    $dataToken = [
+        'email' => $email,
+        'password' => $password,
+        'random' => time()
+    ];
+
+    $token = JWT::encode($dataToken, self::TOKEN_KEY);         
+    return $token;
+}
+
+public function banned($id){
+    
+    if(!parent::checkLogin()){
+        return parent::response("There is a problem with your session",301);
+    }
+
+    $user = User::find($id);
+    $user->banned = !$user->banned;
+
+    $user->update();
+
+    return response()->json([
+        "message" => "user banned",
+        "code" => 200,
+        "status" => $user->banned,
+    ]);
+
+}
 }

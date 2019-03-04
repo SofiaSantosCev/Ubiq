@@ -53,6 +53,15 @@ class LocationController extends Controller
                 
         $location = new Location();
         $location->name = $request->name;
+        if(!isset($request->name) || !isset($request->description) || !isset($request->start_date) || !isset($request->end_date) || !isset($request->y_coordinate) || !isset($request->x_coordinate)){
+            return parent::response("All fields have to be filled", 400);
+        }
+
+        $existingLocation = Location::where('name', $request->name)->first();
+        if ($existingLocation != null) {
+            return parent::response("This location already exists", 401);
+        }
+
         $location->description = $request->description;
         $location->start_date = $request->start_date;
         $location->end_date = $request->end_date;

@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
     	DB::table('roles')->insert([
+
     		'name'=>'admin',
     	]);
 
@@ -27,10 +28,13 @@ class DatabaseSeeder extends Seeder
             'rol_id' => 1,
             'banned'=>0
         ]);
-            
+    	
+        DB::table('roles')->insert([
+            'name'=>'final'
+        ]);
 
 
-
+        
 
     }
 }
