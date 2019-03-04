@@ -13,7 +13,7 @@ class User extends Model
 	use SoftDeletes;
 	use Notifiable;
 
-	protected $fillable = ['password'];
+	protected $fillable = ['name', 'email', 'password', 'banned'];
     
     public function role()
     {
