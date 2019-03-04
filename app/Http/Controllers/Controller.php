@@ -25,6 +25,7 @@ class Controller extends BaseController
     protected function checkLogin()
     {   
         $headers = getallheaders();
+        
         if(!isset($headers['Authorization']))
         { 
             return false;
@@ -33,6 +34,7 @@ class Controller extends BaseController
         $tokenDecoded = self::decodeToken();
 
         $user = self::getUserFromToken();
+        
         if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
         {
             return true;

@@ -21,7 +21,8 @@ class CreateUsersTable extends Migration
             $table->string('password', 255);
             $table->integer('rol_id')->unsigned();
             $table->foreign('rol_id')->references('id')->on('roles');
-            $table->boolean('banned');
+            $table->boolean('banned')->default(false);
+            $table->softDeletes();
             $table->timestamps();
             $table->timestamp('deleted_at')->nullable();
         });
