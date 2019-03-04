@@ -65,7 +65,6 @@ class UserController extends Controller
             ]);
 
         } else {
-            
             return parent::response("You don't have access",400); 
         }
     }
@@ -143,8 +142,6 @@ class UserController extends Controller
             return parent::response("Invalid password. It must be at least 8 characters long.",400); 
         }
 
-        
-
         $user = new User;
         $user->name = $name;
         $user->email = $email;
@@ -155,6 +152,7 @@ class UserController extends Controller
           $user->rol_id = self::ROLE_ID;
         }
         $user->password = $encondedPassword;
+        $user->banned = 0;
         $user->save();
 
         //Si queremos loguearnos directamente sin pasar por el login

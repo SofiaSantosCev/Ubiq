@@ -31,6 +31,7 @@ class Controller extends BaseController
         }
 
         $tokenDecoded = self::decodeToken();
+
         $user = self::getUserFromToken();
         if ($tokenDecoded->password == $user->password and $tokenDecoded->email == $user->email) 
         {

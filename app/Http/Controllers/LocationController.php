@@ -52,7 +52,6 @@ class LocationController extends Controller
         }
                 
         $location = new Location();
-
         $location->name = $request->name;
         $location->description = $request->description;
         $location->start_date = $request->start_date;
@@ -65,7 +64,7 @@ class LocationController extends Controller
 
         return response()->json([
             'message' => "Location created",
-            'id'=>$location->id
+            
         ]);
     }
 
